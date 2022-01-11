@@ -1,6 +1,6 @@
-import firebase from 'firebase/compat/app'
-import 'firebase/compat/firestore'
-import 'firebase/compat/auth'
+import { initializeApp } from 'firebase/app'
+import { getFirestore, doc, getDoc, setDoc } from  'firebase/firestore'
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 
 const config = {
   apiKey: "AIzaSyAap-rhuUYhboJmPB6Tk1jFzHoI8cvEi88",
@@ -12,14 +12,51 @@ const config = {
   measurementId: "G-FMWH374TRT"
 };
 
-firebase.initializeApp(config)
+const app = initializeApp(config)  
 
-export const auth = firebase.auth()
-export const firestore = firebase.firestore()
+export const createUserProfileDocument = async (userAuth, additionaldata) => {
+  if(!userAuth) return
+  //const userRef = app.doc(`users/${userAuth.uid}`)
+  const userRef = doc(firestore, "users", userAuth.uid);
+  
+  //const snapShot = await userRef.get()
+  const snapShot = await getDoc(userRef);
 
-const provider = new firebase.auth.GoogleAuthProvider()
-provider.setCustomParameters({ prompt: 'select_account' })
+  if(!snapShot.exists()) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date()
+    
+    try {
+      await setDoc(userRef, {
+        displayName,
+        email,
+        createdAt,
+        ...additionaldata
+      })
+    } catch (error) {
+      console.log(`Error creating user: ${error.message}`)
+    }
+  }
 
-export const signInWithGoogle = () => auth.signInWithPopup(provider)
+  return snapShot
+}
 
-export default firebase
+export const auth = getAuth(app)
+export const firestore = getFirestore(app)
+
+export const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
+
+export const signInWithGoogle = () => signInWithPopup(auth, provider)
+.then((result) => {
+  // This gives you a Google Access Token. You can use it to access the Google API.
+  const { user } = result;
+  return user
+  // ...
+}).catch((error) => {
+  const credential = GoogleAuthProvider.credentialFromError(error);
+  return credential
+  // ...
+});
+
+export default app
