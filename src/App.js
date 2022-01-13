@@ -44,21 +44,16 @@ class App extends Component {
         <Routes>
           <Route path='/' element={ <HomePage/> } />
           <Route path='/shop' element={ <ShopPage/> } />
-          {
-            this.props.currentUser ? (
-              <Route 
-                exact 
-                path='/signin' 
-                element={ <Navigate _replace_ to='/' /> } 
-              />
+          <Route
+            path="signIn"
+            element={
+              this.props.currentUser ? (
+                <Navigate replace to="/" />
               ) : (
-              <Route 
-                exact 
-                path='/signin' 
-                element={ <SignInAndSignUpPage/> } 
-              />
-            )
-          }
+                <SignInAndSignUpPage />
+              )
+            }
+          />
         </Routes>
       </BrowserRouter>
     );
