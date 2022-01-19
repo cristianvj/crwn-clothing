@@ -47,12 +47,12 @@ class App extends Component {
       <BrowserRouter>
         <Header />
         <Routes>
-          <Route path='/' element={ <HomePage /> } />
-          <Route path='/shop' element={ <ShopPage /> } />
+          <Route exact path='/' element={ <HomePage /> } />
+          <Route path='/shop/*' element={ <ShopPage /> } />
           <Route exact path='/checkout' element={ <Checkout /> } />
           <Route exact path='/contact' element={ <Contact /> } />
           <Route
-            path="signIn"
+            exact path="signIn"
             element={
               this.props.currentUser ? (
                 <Navigate replace to="/" />
